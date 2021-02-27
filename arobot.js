@@ -69,3 +69,44 @@ console.log(next.parcels);
 // → []
 console.log(first.place);
 // → Post Office
+
+//accepts various arguments and creates output: all the moves that the robot makes, and the total count of those.
+function runRobot(state, robot, memory) {
+  for (let turn = 0;; turn++) {
+    if (state.parcels.length == 0) {
+      console.log(`Done in ${turn} turns`);
+      break;
+    }
+    let action = robot(state, memory);
+    state = state.move(action.direction);
+    memory = action.memory;
+    console.log(`Moved to ${action.direction}`);
+  }
+}
+
+//create instructions for the runRobot function such that the robot moves randomly on every turn, picking up any packages that it finds, and
+//dropping off any it is carrying if they happen to be addressed to the location it lands on.
+
+function randomPick(array) {
+  let choice = Math.floor(Math.random() * array.length);
+  return array[choice];
+}
+
+function randomRobot(state) {
+  return {direction: randomPick(roadGraph[state.place])};
+}
+
+VillageState.random = function(parcelCount = 5) {
+  let parcels = [];
+  for (let i = 0; i < parcelCount; i++) {
+    let address = randomPick(Object.keys(roadGraph));
+    let place;
+    do {
+      place = randomPick(Object.keys(roadGraph));
+    } while (place == address);
+    parcels.push({place, address});
+  }
+  return new VillageState("Post Office", parcels);
+};
+
+runRobot(VillageState.random(), randomRobot);
